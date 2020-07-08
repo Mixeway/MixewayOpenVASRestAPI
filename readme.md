@@ -9,7 +9,7 @@ to release REST API for OpenVAS.
 This application is using `GVM-CLI` in order to communicate with unix scocket so it has to be run on the same machine as 
 OpenVAS.
 
-###Requirements
+### Requirements
 1. JAVA 1.8
 2. MVN (if installing from sources)
 2. OpenVAS installed (https://www.openvas.org/)  
@@ -17,7 +17,7 @@ OpenVAS.
 4. OpenVAS manager (GVMD) process has to be running on unix socket (path to the socket will be needed)
 5. PKCS12 file which will contain 
 
-###Installation
+### Installation
 From Sources:
 ```shell script
 git clone https://github.com/mixeway/mixewayopenvasrestapi
