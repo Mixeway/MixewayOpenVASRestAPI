@@ -1,6 +1,6 @@
 # Mixeway OpenVAS REST API
 
-###Informations
+### Informations
 
 
 Due to problems with using standard TCP Socket which is avaliable after running GVMD process on listening port, we have decided
