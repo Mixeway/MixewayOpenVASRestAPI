@@ -63,7 +63,7 @@ server.ssl.trust-store-password | changeit | password for JSK file
 openvasmd.socket | /usr/local/var/run/openvasmd.sock | path for Unix Socket of OpenVAS Manager (GVMD)
 allowed.users | localhost,127.0.0.1 | Common Name of TLS Certificate which is allowed to send signed request to REST API (comma separeted if more needed)
 
-###Authentication
+### Authentication
 Mixeway OpenVAS REST API in version 1.0.0 is using only TLS Certificate base authentication. Which means only request signed by
 trusted TLS Certificate with CN on allow list (allowed.users) can be authenticated. 
 
