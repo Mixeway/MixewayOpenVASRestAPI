@@ -158,7 +158,6 @@ public class OpenVasClient {
 	}
 	private String getConfigResponse(User user) throws SAXException, IOException, ParserConfigurationException, JAXBException {
 		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli socket --socketpath "+socket+" --xml \""+xob.buildGetConfig(user)+"\"");
-		System.out.println("gvm-cli socket --socketpath "+socket+" --xml \""+xob.buildGetConfig(user)+"\"");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
