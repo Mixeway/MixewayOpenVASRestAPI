@@ -89,7 +89,7 @@ public class OpenVasClient {
 	                try {
 		                Vuln v = new Vuln();
 		                v.setName(el.getElementsByTagName("name").item(0).getTextContent());
-		                v.setHost(el.getElementsByTagName("host").item(0).getTextContent());
+		                v.setHost(el.getElementsByTagName("host").item(0).getFirstChild().getTextContent());
 		                v.setDesc(el.getElementsByTagName("description").item(0).getTextContent());
 		                v.setPort(el.getElementsByTagName("port").item(0).getTextContent());
 		                v.setThreat(el.getElementsByTagName("threat").item(0).getTextContent());
@@ -158,6 +158,7 @@ public class OpenVasClient {
 	}
 	private String getConfigResponse(User user) throws SAXException, IOException, ParserConfigurationException, JAXBException {
 		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli socket --socketpath "+socket+" --xml \""+xob.buildGetConfig(user)+"\"");
+		System.out.println("gvm-cli socket --socketpath "+socket+" --xml \""+xob.buildGetConfig(user)+"\"");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
