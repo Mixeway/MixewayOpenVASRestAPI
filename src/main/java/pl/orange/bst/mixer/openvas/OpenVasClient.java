@@ -66,43 +66,111 @@ public class OpenVasClient {
 	public ReportXml getReport(RestRequestBody body) throws JAXBException, SAXException, IOException, ParserConfigurationException {
 		return getReportResponse(body.getUser(), body.getParams());
 	}
-	
 
-	private ReportXml getReportResponse(User user, HashMap<String, String> params) throws JAXBException, SAXException, IOException, ParserConfigurationException {
-		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildGetReport(user, params)+"'");
+
+	/**
+	 * Version 11
+	 */
+	private List<Vuln> loadVulns(User user, HashMap<String, String> params, int start, List<Vuln> vulns) throws JAXBException, SAXException, IOException, ParserConfigurationException {
+		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli --timeout 600 socket --socketpath " + socket + " --xml '" + xob.buildGetResult(user, params, start) + "'");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder()
-                .parse(new InputSource(new StringReader(output)));
-		Element reportNodeResponse = (Element) doc.getElementsByTagName("get_reports_response").item(0);
-		Element reportNode = (Element) reportNodeResponse.getElementsByTagName("report").item(0);
-		Element reportNode2 = (Element) reportNode.getElementsByTagName("report").item(0);
-		Element results = (Element) reportNode2.getElementsByTagName("results").item(0);
+				.newDocumentBuilder()
+				.parse(new InputSource(new StringReader(output)));
+		Element results = (Element) doc.getElementsByTagName("get_results_response").item(0);
+		Element count = (Element) doc.getElementsByTagName("result_count").item(0);
+		int resultsCount = Integer.parseInt(count.getElementsByTagName("filtered").item(0).getTextContent());
+		log.info("Loading vulns for page {} and reportid: {}, result count {}", start, params.get(ConstantStrings.REPORT_ID), resultsCount);
+
 		NodeList vulnNode = results.getElementsByTagName("result");
-		List<Vuln> vulns = new ArrayList<>();
-		
 		if (vulnNode != null) {
-	        int length = vulnNode.getLength();
-	        for (int i = 0; i < length; i++) {
-	            if (vulnNode.item(i).getNodeType() == Node.ELEMENT_NODE) {
-	                Element el = (Element) vulnNode.item(i);   
-	                try {
-		                Vuln v = new Vuln();
-		                v.setName(el.getElementsByTagName("name").item(0).getTextContent());
-		                v.setHost(el.getElementsByTagName("host").item(0).getFirstChild().getTextContent());
-		                v.setDesc(el.getElementsByTagName("description").item(0).getTextContent());
-		                v.setPort(el.getElementsByTagName("port").item(0).getTextContent());
-		                v.setThreat(el.getElementsByTagName("threat").item(0).getTextContent());
-		                vulns.add(v);
-	                } catch (NullPointerException n) {
-	                	log.warn("Something is wrong with one of the results, nullpoitner returned");
-	                }
-	            }
-	        }
-	    }
-		
+			int length = vulnNode.getLength();
+			for (int i = 0; i < length; i++) {
+				if (vulnNode.item(i).getNodeType() == Node.ELEMENT_NODE) {
+					Element el = (Element) vulnNode.item(i);
+					try {
+						Vuln v = new Vuln();
+						v.setName(el.getElementsByTagName("name").item(0).getTextContent());
+						v.setHost(el.getElementsByTagName("host").item(0).getFirstChild().getTextContent());
+						v.setDesc(el.getElementsByTagName("description").item(0).getTextContent());
+						v.setPort(el.getElementsByTagName("port").item(0).getTextContent());
+						v.setThreat(getThreat(el.getElementsByTagName("severity").item(0).getTextContent()));
+						vulns.add(v);
+					} catch (NullPointerException n) {
+						//n.printStackTrace();
+						log.info("Something is wrong with one of the results, nullpoitner returned");
+					}
+				}
+			}
+		}
+		log.info("Vunlns contains {} records", vulns.size());
+		if (((start * 1000) + 1000) < resultsCount){
+			start++;
+			vulns.addAll(loadVulns(user, params,start, vulns));
+		}
+
+		return vulns;
+	}
+
+	private String getThreat(String severity) {
+		double sev = Double.parseDouble(severity);
+		if (sev == 0.0){
+			return "Info";
+		} else if (sev <=4.0){
+			return "Low";
+		} else if (sev <=6.0) {
+			return "Medium";
+		} else if (sev <=8.0){
+			return "High";
+		} else {
+			return "Critical";
+		}
+	}
+
+	/**
+	 * Version 9
+	 */
+
+	private ReportXml getReportResponse(User user, HashMap<String, String> params) throws JAXBException, SAXException, IOException, ParserConfigurationException {
+		List<Vuln> vulns = new ArrayList<>();
+		try {
+			ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli --timeout 600 socket --socketpath " + socket + " --xml '" + xob.buildGetReport(user, params) + "'");
+			String output = IOUtils.toString(pb.start().getInputStream());
+			Document doc = DocumentBuilderFactory.newInstance()
+					.newDocumentBuilder()
+					.parse(new InputSource(new StringReader(output)));
+			Element reportNodeResponse = (Element) doc.getElementsByTagName("get_reports_response").item(0);
+			Element reportNode = (Element) reportNodeResponse.getElementsByTagName("report").item(0);
+			Element reportNode2 = (Element) reportNode.getElementsByTagName("report").item(0);
+			Element results = (Element) reportNode2.getElementsByTagName("results").item(0);
+			NodeList vulnNode = results.getElementsByTagName("result");
+
+
+			if (vulnNode != null) {
+				int length = vulnNode.getLength();
+				for (int i = 0; i < length; i++) {
+					if (vulnNode.item(i).getNodeType() == Node.ELEMENT_NODE) {
+						Element el = (Element) vulnNode.item(i);
+						try {
+							Vuln v = new Vuln();
+							v.setName(el.getElementsByTagName("name").item(0).getTextContent());
+							v.setHost(el.getElementsByTagName("host").item(0).getFirstChild().getTextContent());
+							v.setDesc(el.getElementsByTagName("description").item(0).getTextContent());
+							v.setPort(el.getElementsByTagName("port").item(0).getTextContent());
+							v.setThreat(el.getElementsByTagName("threat").item(0).getTextContent());
+							vulns.add(v);
+						} catch (NullPointerException n) {
+							log.warn("Something is wrong with one of the results, nullpoitner returned");
+						}
+					}
+				}
+			}
+		} catch (NullPointerException e){
+			log.warn("No results");
+		}
 		return new ReportXml(vulns);
 	}
+
 	private String getTaskStatusResponse(User user, HashMap<String, String> params) throws JAXBException, SAXException, IOException, ParserConfigurationException {
 		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildGetTask(user, params)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
