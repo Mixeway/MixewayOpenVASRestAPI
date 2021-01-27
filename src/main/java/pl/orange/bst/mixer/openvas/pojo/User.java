@@ -23,6 +23,9 @@ public class User {
 		this.setUsername(ConstantStrings.escape(this.getUsername()));
 		return this;
 	}
-	
 
+	public User(String username, String password) {
+		this.username = username;
+		this.password = password;
+	}
 }

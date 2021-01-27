@@ -69,7 +69,7 @@ public class OpenVasClient {
 	
 
 	private ReportXml getReportResponse(User user, HashMap<String, String> params) throws JAXBException, SAXException, IOException, ParserConfigurationException {
-		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli socket --socketpath "+socket+" --xml '"+xob.buildGetReport(user, params)+"'");
+		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildGetReport(user, params)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
@@ -104,7 +104,7 @@ public class OpenVasClient {
 		return new ReportXml(vulns);
 	}
 	private String getTaskStatusResponse(User user, HashMap<String, String> params) throws JAXBException, SAXException, IOException, ParserConfigurationException {
-		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli socket --socketpath "+socket+" --xml '"+xob.buildGetTask(user, params)+"'");
+		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildGetTask(user, params)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
@@ -118,7 +118,7 @@ public class OpenVasClient {
 			return null;
 	}
 	private String getRunTask(User user, HashMap<String, String> params) throws JAXBException, SAXException, IOException, ParserConfigurationException {
-		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli socket --socketpath "+socket+" --xml '"+xob.buildStartTask(user, params)+"'");
+		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildStartTask(user, params)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
@@ -131,7 +131,7 @@ public class OpenVasClient {
 			return null;
 	}
 	private String getModifyTaskResponse(User user, HashMap<String, String> params) throws JAXBException, SAXException, IOException, ParserConfigurationException {
-		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli socket --socketpath "+socket+" --xml '"+xob.buildModifyTask(user, params)+"'");
+		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildModifyTask(user, params)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
@@ -144,7 +144,7 @@ public class OpenVasClient {
 			return null;
 	}
 	private String getCreateTaskResponse(User user, HashMap<String, String> params) throws JAXBException, SAXException, IOException, ParserConfigurationException {
-		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli socket --socketpath "+socket+" --xml '"+xob.buildCreateTask(user, params)+"'");
+		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildCreateTask(user, params)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
@@ -157,8 +157,7 @@ public class OpenVasClient {
 			return null;
 	}
 	private String getConfigResponse(User user) throws SAXException, IOException, ParserConfigurationException, JAXBException {
-		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli socket --socketpath "+socket+" --xml \""+xob.buildGetConfig(user)+"\"");
-		System.out.println("gvm-cli socket --socketpath "+socket+" --xml \""+xob.buildGetConfig(user)+"\"");
+		ProcessBuilder pb = new ProcessBuilder("bash", "-c",  buildCommandPrefix(user) + "'"+xob.buildGetConfig(user)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
@@ -179,7 +178,7 @@ public class OpenVasClient {
 	}
 
 	private String getScannerResponse(User user) throws SAXException, IOException, ParserConfigurationException, JAXBException {
-		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli socket --socketpath "+socket+" --xml \""+xob.buildGetScanners(user)+"\"");
+		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildGetScanners(user)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
@@ -200,7 +199,7 @@ public class OpenVasClient {
 	}
 	private String getCreateTargetRespnse(User user, HashMap<String, String> params) throws JAXBException, SAXException, IOException, ParserConfigurationException {
 		
-		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli socket --socketpath "+socket+" --xml \""+xob.buildCreateTarget(user, params)+"\"");
+		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildCreateTarget(user, params)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
@@ -213,4 +212,7 @@ public class OpenVasClient {
 			return null;
 	}
 
+	public String buildCommandPrefix(User user){
+		return String.format("gvm-cli --gmp-username=%s --gmp-password=%s socket --socketpath %s --xml ",user.getUsername(), user.getPassword(), socket);
+	}
 }

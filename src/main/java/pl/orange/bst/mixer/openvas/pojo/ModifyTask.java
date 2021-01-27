@@ -3,9 +3,10 @@ package pl.orange.bst.mixer.openvas.pojo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-
+@XmlRootElement(name = "modify_task")
 public class ModifyTask {
 	@XmlAttribute(name="task_id")
 	private String taskId;

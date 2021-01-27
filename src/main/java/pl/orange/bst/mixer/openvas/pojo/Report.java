@@ -3,8 +3,10 @@ package pl.orange.bst.mixer.openvas.pojo;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "get_reports")
 public class Report {
 
 	@XmlAttribute(name="report_id")
@@ -23,6 +25,7 @@ public class Report {
 	public Report(String id) {
 		this.setReportId(id);
 	}
+	public Report(){}
 
 	public Boolean getIgnorePagination() {
 		return ignorePagination;

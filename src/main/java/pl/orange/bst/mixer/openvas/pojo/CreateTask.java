@@ -1,5 +1,8 @@
 package pl.orange.bst.mixer.openvas.pojo;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "create_task")
 public class CreateTask {
 	private String name;
 	private Config config;
