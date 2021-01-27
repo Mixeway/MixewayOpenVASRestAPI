@@ -13,6 +13,8 @@ public class Report {
 	private String reportId;
 	@XmlAttribute(name="ignore_pagination")
 	private Boolean ignorePagination = true;
+	@XmlAttribute(name = "details")
+	private String details = "True";
 
 	public String getReportId() {
 		return reportId;

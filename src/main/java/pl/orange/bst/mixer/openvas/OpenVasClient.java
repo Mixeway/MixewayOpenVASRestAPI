@@ -75,7 +75,8 @@ public class OpenVasClient {
 	 * Version 11
 	 */
 	private List<Vuln> loadVulns(User user, HashMap<String, String> params, int start, List<Vuln> vulns) throws JAXBException, SAXException, IOException, ParserConfigurationException {
-		ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli --timeout 600 socket --socketpath " + socket + " --xml '" + xob.buildGetResult(user, params, start) + "'");
+		//ProcessBuilder pb = new ProcessBuilder("bash", "-c", "gvm-cli --timeout 600 socket --socketpath " + socket + " --xml '" + xob.buildGetResult(user, params, start) + "'");
+		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildGetResult(user, params, start)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
 				.newDocumentBuilder()
@@ -284,6 +285,6 @@ public class OpenVasClient {
 	}
 
 	public String buildCommandPrefix(User user){
-		return String.format("gvm-cli --gmp-username=%s --gmp-password=%s socket --socketpath %s --xml ",user.getUsername(), user.getPassword(), socket);
+		return String.format("gvm-cli --timeout 600 --gmp-username=%s --gmp-password=%s socket --socketpath %s --xml ",user.getUsername(), user.getPassword(), socket);
 	}
 }
