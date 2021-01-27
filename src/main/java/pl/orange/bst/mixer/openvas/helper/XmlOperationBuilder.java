@@ -13,17 +13,7 @@ import org.springframework.stereotype.Component;
 
 import pl.orange.bst.mixer.ConstantStrings;
 import pl.orange.bst.mixer.openvas.OpenVasClient;
-import pl.orange.bst.mixer.openvas.pojo.Config;
-import pl.orange.bst.mixer.openvas.pojo.CreateTarget;
-import pl.orange.bst.mixer.openvas.pojo.CreateTask;
-import pl.orange.bst.mixer.openvas.pojo.DeleteTarget;
-import pl.orange.bst.mixer.openvas.pojo.GetTask;
-import pl.orange.bst.mixer.openvas.pojo.ModifyTask;
-import pl.orange.bst.mixer.openvas.pojo.Report;
-import pl.orange.bst.mixer.openvas.pojo.Scanner;
-import pl.orange.bst.mixer.openvas.pojo.StartTask;
-import pl.orange.bst.mixer.openvas.pojo.Target;
-import pl.orange.bst.mixer.openvas.pojo.User;
+import pl.orange.bst.mixer.openvas.pojo.*;
 
 @Component
 public class XmlOperationBuilder {
@@ -140,5 +130,18 @@ public class XmlOperationBuilder {
 		return sw.toString();
 		
 	}
+
+	public String buildGetResult(User user, HashMap<String, String> target, int page) throws JAXBException {
+		//CommandsGetResults cgr = new CommandsGetResults(user, page, target.get(ConstantStrings.REPORT_ID));
+		GetResults cgr = new GetResults(target.get(ConstantStrings.REPORT_ID), page);
+		JAXBContext jaxbContext = JAXBContext.newInstance(CommandsGetResults.class);
+		Marshaller marshaller = jaxbContext.createMarshaller();
+		marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+		StringWriter sw = new StringWriter();
+		marshaller.marshal(cgr, sw);
+		return sw.toString();
+	}
+
+
 
 }
