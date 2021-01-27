@@ -64,7 +64,10 @@ public class OpenVasClient {
 		return getTaskStatusResponse(body.getUser(), body.getParams());
 	}
 	public ReportXml getReport(RestRequestBody body) throws JAXBException, SAXException, IOException, ParserConfigurationException {
-		return getReportResponse(body.getUser(), body.getParams());
+		List<Vuln> vulns = new ArrayList<>();
+		int start =0;
+		vulns = loadVulns(body.getUser(), body.getParams(), start, vulns);
+		return new ReportXml(vulns);
 	}
 
 
