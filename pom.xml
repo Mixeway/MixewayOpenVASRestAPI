@@ -5,7 +5,7 @@
 
 	<groupId>io.mixeway</groupId>
 	<artifactId>MixewayOpenVasRestAPI</artifactId>
-	<version>1.1.0-SNAPSHOT</version>
+	<version>1.2.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>MixewayOpenVasRestAPI</name>
@@ -91,6 +91,11 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.12.0</version>
 		</dependency>
 
 

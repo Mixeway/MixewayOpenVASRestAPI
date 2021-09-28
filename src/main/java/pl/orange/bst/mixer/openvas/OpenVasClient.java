@@ -11,6 +11,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,8 @@ import pl.orange.bst.mixer.openvas.pojo.Vuln;
 public class OpenVasClient {
 	@Value("${openvasmd.socket}")
 	private String socket;
+	@Value("${gvm-cli.exec}")
+	private String gvmCli;
 
 	XmlOperationBuilder xob = new XmlOperationBuilder();
 	private static final Logger log = LoggerFactory.getLogger(OpenVasClient.class);
@@ -98,7 +101,12 @@ public class OpenVasClient {
 						v.setHost(el.getElementsByTagName("host").item(0).getFirstChild().getTextContent());
 						v.setDesc(el.getElementsByTagName("description").item(0).getTextContent());
 						v.setPort(el.getElementsByTagName("port").item(0).getTextContent());
-						v.setThreat(getThreat(el.getElementsByTagName("severity").item(0).getTextContent()));
+						if(StringUtils.isNumeric(el.getElementsByTagName("severity").item(0).getTextContent())) {
+							v.setThreat(getThreat(el.getElementsByTagName("severity").item(0).getTextContent()));
+						} else {
+							Element severityNvt = (Element) el.getElementsByTagName("severity").item(0);
+							v.setThreat(getThreat(severityNvt.getElementsByTagName("score").item(0).getTextContent()));
+						}
 						vulns.add(v);
 					} catch (NullPointerException n) {
 						//n.printStackTrace();
@@ -192,6 +200,8 @@ public class OpenVasClient {
 	private String getRunTask(User user, HashMap<String, String> params) throws JAXBException, SAXException, IOException, ParserConfigurationException {
 		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildStartTask(user, params)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
+		log.debug("Request for starttask is {}",  buildCommandPrefix(user) + "'"+xob.buildStartTask(user, params)+"'");
+		log.debug("Output for starttask is {}", output);
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
                 .parse(new InputSource(new StringReader(output)));
@@ -229,6 +239,7 @@ public class OpenVasClient {
 			return null;
 	}
 	private String getConfigResponse(User user) throws SAXException, IOException, ParserConfigurationException, JAXBException {
+		log.info("About to execute: {} {} {} '{}'","bash","-c", buildCommandPrefix(user),xob.buildGetConfig(user) );
 		ProcessBuilder pb = new ProcessBuilder("bash", "-c",  buildCommandPrefix(user) + "'"+xob.buildGetConfig(user)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
 		Document doc = DocumentBuilderFactory.newInstance()
@@ -273,6 +284,8 @@ public class OpenVasClient {
 		
 		ProcessBuilder pb = new ProcessBuilder("bash", "-c", buildCommandPrefix(user) + "'"+xob.buildCreateTarget(user, params)+"'");
 		String output = IOUtils.toString(pb.start().getInputStream());
+		log.debug("Request for createtarget is {}",  buildCommandPrefix(user) + "'"+xob.buildCreateTarget(user, params)+"'");
+		log.debug("Output for createtarget is {}", output);
 		Document doc = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder()
                 .parse(new InputSource(new StringReader(output)));
@@ -285,6 +298,6 @@ public class OpenVasClient {
 	}
 
 	public String buildCommandPrefix(User user){
-		return String.format("gvm-cli --timeout 600 --gmp-username=%s --gmp-password=%s socket --socketpath %s --xml ",user.getUsername(), user.getPassword(), socket);
+		return String.format("%s --timeout 600 --gmp-username=%s --gmp-password=%s socket --socketpath %s --xml ",gvmCli,user.getUsername(), user.getPassword(), socket);
 	}
 }

@@ -39,6 +39,15 @@ public class Test {
         System.out.println("Create task:");
         System.out.println(buildCommandPrefix(user) + "'"+xob.buildGetReport(user, params)+"'");
     }
+    @org.junit.Test
+    public void getReport() throws JAXBException {
+        XmlOperationBuilder xob = new XmlOperationBuilder();
+        User user = new User("gvmadmin","1qaz@WSX");
+        HashMap<String, String> params =new HashMap<>();
+        params.put("report_id","c9299f55-c17f-4e33-a3b0-48809213ee6d");
+        System.out.println("Create task:");
+        System.out.println(buildCommandPrefix(user) + "'"+xob.buildGetReport(user, params)+"'");
+    }
 
 
 
